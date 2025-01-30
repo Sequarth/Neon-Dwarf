@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dae610a3b929e294a994866181025925, type: 3}
+  m_Name: Triangle Stats SO
+  m_EditorClassIdentifier: 
+  enemySprite: {fileID: 7482667652216324306, guid: d3f69c068fd2a264ba34e5f2e384f0f0, type: 3}
+  enemyColor: {r: 0, g: 0.78867924, b: 0, a: 1}
+  enemyName: Triangle Enemy
+  enemyType: 2
+  maxHealth: 40
+  movementSpeed: 3
+  meleeDamage: 2
+  meleeAttackSpeed: 0
+  rangedDamage: 0
+  rangedAttackSpeed: 0
+  regenerationPerSecond: 0
+  knockbackResistance: 0.1

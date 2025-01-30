@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dae610a3b929e294a994866181025925, type: 3}
+  m_Name: Hexagon Stats SO
+  m_EditorClassIdentifier: 
+  enemySprite: {fileID: -712631045867808456, guid: 1f574d95800e6f74383c438650749948, type: 3}
+  enemyColor: {r: 0.645283, g: 0, b: 0.645283, a: 1}
+  enemyName: Hexagon Enemy
+  enemyType: 4
+  maxHealth: 150
+  movementSpeed: 1
+  meleeDamage: 10
+  meleeAttackSpeed: 0
+  rangedDamage: 0
+  rangedAttackSpeed: 0
+  regenerationPerSecond: 5
+  knockbackResistance: 0.9
