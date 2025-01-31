@@ -69,8 +69,14 @@ public class UnitManager : MonoBehaviour
     [Header("Unit Lists")]
     [SerializeField]
     private GameObject unitListGameobject;
-    private List<GameObject> enemyList;
-    private List<GameObject> environmentList;
+    //private List<GameObject> enemyList;
+    //private List<GameObject> environmentList;
+    [SerializeField]
+    private int enemyPoolAmount = 10;
+    private List<GameObject> enemyPool;
+    [SerializeField]
+    private int environmentPoolAmount = 10;
+    private List<GameObject> environmentPool;
 
 
 
@@ -86,13 +92,106 @@ public class UnitManager : MonoBehaviour
     //
     //  Destroys left over unit game objects (if any left) and creates new lists
     //
-    public void ClearUnitLists()
+    public void DestroyPoolingObjects()
     {
-        if (enemyList != null) { foreach (var enemy in enemyList) { Destroy(enemy); } }
-        if (environmentList != null) { foreach (var enviro in environmentList) { Destroy(enviro); } }
+        if (enemyPool != null && enemyPool.Count > 0) { foreach (var enemy in enemyPool) { Destroy(enemy); } }
+        if (environmentPool != null && environmentPool.Count > 0) { foreach (var enviro in environmentPool) { Destroy(enviro); } }
 
-        enemyList = new List<GameObject>();
-        environmentList = new List<GameObject>();
+        enemyPool = null;
+        environmentPool = null;
+    }
+
+    //
+    //  Initializes pools of objects to use
+    //
+    public void InitializePoolingBatches()
+    {
+        if (enemyPool == null) { 
+            enemyPool = new List<GameObject>();
+            InstantiateEnemyPool(); 
+        }
+        else { 
+            Debug.Log("Enemy Pool already exists - skipping instantiation of enemy objects," +
+                " deactivating already existing ones"); 
+            DeactivateEnemyPoolObjects();
+        }
+
+        if (environmentPool == null) { 
+            environmentPool = new List<GameObject>();
+            InstantiateEnvironmentPool(); 
+        }
+        else { 
+            Debug.Log("Environment Pool already exists - skipping instantiation of environment objects, " +
+                "deactivating already existing ones"); 
+            DeactivateEnvironmentPoolObjects();
+        }
+    }
+
+    //
+    //  Instantiates enemy object pool
+    //
+    private void InstantiateEnemyPool()
+    {
+        for (int i = 0; i < enemyPoolAmount; i++)
+        {
+            GameObject spawnedEnemy = Instantiate(enemyObject, Vector3.zero, Quaternion.identity,
+                unitListGameobject.transform);
+            spawnedEnemy.SetActive(false);
+            enemyPool.Add(spawnedEnemy);
+        }
+    }
+
+    //
+    //  Deactivates objects in enemy object pool
+    //
+    private void DeactivateEnemyPoolObjects()
+    {
+        foreach (var enemy in enemyPool) { enemy.SetActive(false); }
+    }
+
+    //
+    //  Grabs available enemy object in the enemy object pool
+    //
+    private GameObject GetPooledEnemyObject()
+    {
+        foreach (var enemy in enemyPool) { 
+            if (!enemy.activeInHierarchy) { return enemy; }
+        }
+        return null;
+    }
+
+    //
+    //  Instantiates environment object pool
+    //
+    private void InstantiateEnvironmentPool()
+    {
+        for (int i = 0; i < environmentPoolAmount; i++)
+        {
+            GameObject spawnedEnvironment = Instantiate(environmentObject, Vector3.zero, Quaternion.identity,
+                unitListGameobject.transform);
+            spawnedEnvironment.SetActive(false);
+            environmentPool.Add(spawnedEnvironment);
+        }
+    }
+
+    //
+    //  Deactivates objects in enemy object pool
+    //
+    private void DeactivateEnvironmentPoolObjects()
+    {
+        foreach (var environment in environmentPool) { environment.SetActive(false); }
+    }
+
+    //
+    //  Grabs available environment object in the environment object pool
+    //
+    private GameObject GetPooledEnvironmentObject()
+    {
+        foreach (var environment in environmentPool)
+        {
+            if (!environment.activeInHierarchy) { return environment; }
+        }
+        return null;
     }
 
     //
@@ -105,9 +204,18 @@ public class UnitManager : MonoBehaviour
         Vector2 randomPositionOnCircle = UnityEngine.Random.insideUnitCircle.normalized;
         randomPositionOnCircle *= radius;
 
-        GameObject spawnedUnit = Instantiate(enemyObject, randomPositionOnCircle + _playerPosition,
-            Quaternion.identity, unitListGameobject.transform);
+        //  TODO - Change for object pooling
+        //GameObject spawnedUnit = Instantiate(enemyObject, randomPositionOnCircle + _playerPosition,
+        //    Quaternion.identity, unitListGameobject.transform);
+        GameObject spawnedUnit = GetPooledEnemyObject();
+        if (spawnedUnit ==  null)
+        {
+            Debug.Log("Achieved enemy spawn limit - skipping enemy spawn");
+            return;
+        }
+
         spawnedUnit.name = _enemyStatsTemplate.name;
+        spawnedUnit.transform.position = _playerPosition + randomPositionOnCircle;
 
         SpriteRenderer enemySpriteRenderer = spawnedUnit.GetComponent<SpriteRenderer>();
         enemySpriteRenderer.sprite = _enemyStatsTemplate.EnemySprite;
@@ -120,7 +228,7 @@ public class UnitManager : MonoBehaviour
         enemyAttachable.currentMovementSpeed = _enemyStatsTemplate.MovementSpeed;
         enemyAttachable.damage = _enemyStatsTemplate.MeleeDamage;
 
-        enemyList.Add(spawnedUnit);
+        spawnedUnit.SetActive(true);
     }
 
     //
@@ -167,11 +275,11 @@ public class UnitManager : MonoBehaviour
             collider.gameObject.GetComponent<EnemyAttachable>().currentHealth -= unpackedData.Item2;
             if (collider.GetComponent<EnemyAttachable>().currentHealth <= 0)
             {
-                Destroy(collider.gameObject);
+                collider.gameObject.SetActive(false);
             }
         }
     }
-    
+
 
     //
     //  Spawns enemy basic prefab based on player position, attaches components and sets their value based on enemy type
@@ -183,9 +291,18 @@ public class UnitManager : MonoBehaviour
         Vector2 randomPositionOnCircle = UnityEngine.Random.insideUnitCircle.normalized;
         randomPositionOnCircle *= radius;
 
-        GameObject spawnedUnit = Instantiate(environmentObject, randomPositionOnCircle + _playerPosition,
-            Quaternion.identity, unitListGameobject.transform);
+        //  TODO - change to pooling
+        //GameObject spawnedUnit = Instantiate(environmentObject, randomPositionOnCircle + _playerPosition,
+        //    Quaternion.identity, unitListGameobject.transform);
+        GameObject spawnedUnit = GetPooledEnvironmentObject();
+        if (spawnedUnit == null)
+        {
+            Debug.Log("Achieved environment spawn limit - skipping environment spawn");
+            return;
+        }
+
         spawnedUnit.name = _environmentStatsTemplate.name;
+        spawnedUnit.transform.position = _playerPosition + randomPositionOnCircle;
 
         SpriteRenderer environmentSpriteRenderer = spawnedUnit.GetComponent<SpriteRenderer>();
         environmentSpriteRenderer.sprite = _environmentStatsTemplate.EnvironmentSprite;
@@ -196,10 +313,10 @@ public class UnitManager : MonoBehaviour
         environmentAttachable.currentHealth = _environmentStatsTemplate.MaxHealth;
         environmentAttachable.maxHealth = _environmentStatsTemplate.MaxHealth;
 
-        environmentList.Add(spawnedUnit);
+        spawnedUnit.SetActive(true);
     }
 
-    //  
+    //
     //  Takes environment type and spawns such environment based on player position
     //  
     public void SpawnEvironment(EnvironmentType _environmentType, int _quantityToSpawn, Vector2 _playerPosition)
@@ -242,7 +359,7 @@ public class UnitManager : MonoBehaviour
                 int oreGained = 1;
                 onOreDestroyed.Raise(this, (collider.GetComponent<EnvironmentAttachable>().environmentType, oreGained));
 
-                Destroy(collider.gameObject);
+                collider.gameObject.SetActive(false);
             }
         }
     }

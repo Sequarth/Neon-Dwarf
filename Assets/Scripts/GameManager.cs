@@ -23,7 +23,8 @@ public class GameManager : MonoBehaviour
         mapManager = MapManager.instance;
 
         playerManager.LoadPlayer();
-        unitManager.ClearUnitLists();
+        unitManager.DestroyPoolingObjects();
+        unitManager.InitializePoolingBatches();
 
         //test
         //unitManager.SpawnEnemy(EnemyType.TEST, playerManager.GetPlayerPosition());
@@ -51,6 +52,7 @@ public class GameManager : MonoBehaviour
     {
         LevelDataSO levelData = mapManager.GetLevelData(_level);
         Vector2 playerPosition;
+        float spawnDelaySeconds = 5f;
 
         while (true)
         {
@@ -65,7 +67,7 @@ public class GameManager : MonoBehaviour
                         levelData.GetSpawnQuantity(id), playerPosition);
                 }
             }
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(spawnDelaySeconds);
         }
     }
 }

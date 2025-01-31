@@ -646,6 +646,8 @@ MonoBehaviour:
   environmentGoldStats: {fileID: 11400000, guid: 06b767fb96f1b80438eea27d7af8dca7, type: 2}
   onOreDestroyed: {fileID: 11400000, guid: f02665a5936d1a34eb85707d86494105, type: 2}
   unitListGameobject: {fileID: 1768868821}
+  enemyPoolAmount: 25
+  environmentPoolAmount: 10
 --- !u!114 &1120513203
 MonoBehaviour:
   m_ObjectHideFlags: 0
